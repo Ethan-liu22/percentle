@@ -1,0 +1,920 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Percentle</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0d1030;--panel:#1a1f4a;--panel2:#232a5e;--ink:#fff1e8;--dim:#9aa3d8;--gold:#ffec27;--red:#ff004d;--blue:#29adff;--green:#00e436}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html,body{margin:0;background:var(--bg);color:var(--ink);font-family:'VT323',monospace;font-size:22px;line-height:1.15}
+#app{max-width:480px;margin:0 auto;padding:10px 10px 40px}
+.px{font-family:'Press Start 2P',monospace}
+header{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;gap:6px}
+.logo{font-size:16px;color:var(--gold);text-shadow:2px 2px 0 #b8476a}
+.hbtns{display:flex;gap:6px}
+.iconbtn{background:var(--panel);border:3px solid #000;color:var(--ink);font-family:'Press Start 2P',monospace;font-size:9px;padding:7px 8px;cursor:pointer;box-shadow:inset -3px -3px 0 rgba(0,0,0,.35)}
+canvas#scene{width:100%;image-rendering:pixelated;image-rendering:crisp-edges;display:block;border:4px solid #000;background:#000}
+.card{background:var(--panel);border:4px solid #000;box-shadow:inset -4px -4px 0 rgba(0,0,0,.3);padding:12px;margin-top:10px}
+.center{text-align:center}
+.btn{display:block;width:100%;font-family:'Press Start 2P',monospace;font-size:14px;padding:15px 10px;border:4px solid #000;background:var(--gold);color:#1a1c2c;cursor:pointer;box-shadow:inset -4px -4px 0 rgba(0,0,0,.25);margin-top:12px}
+.btn:active{transform:translateY(2px);box-shadow:inset 4px 4px 0 rgba(0,0,0,.25)}
+.btn.red{background:var(--red);color:#fff}
+.btn.ghost{background:var(--panel2);color:var(--ink)}
+.row{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.chip{font-size:9px;background:#000;color:var(--gold);padding:6px 8px}
+.small{font-size:9px;color:var(--dim)}
+.h2{font-size:11px;color:var(--gold);margin-bottom:10px}
+.timerwrap{height:10px;background:#000;margin:10px 0;border:2px solid #000}
+#timer{height:100%;width:100%;background:var(--green)}
+#timer.low{background:var(--red)}
+.qrow{display:flex;gap:12px;align-items:center;min-height:72px}
+#qicon{width:60px;height:60px;image-rendering:pixelated;flex:none;background:#0d1030;border:3px solid #000;padding:5px}
+#qtext{font-size:26px}
+.readrow{display:flex;align-items:center;justify-content:center;gap:16px;margin:12px 0 6px}
+.readout{font-size:40px;min-width:170px;text-align:center;color:var(--gold);text-shadow:3px 3px 0 #000}
+.nudge{width:44px;height:44px;font-size:16px;background:var(--panel2);color:var(--ink);border:3px solid #000;cursor:pointer;box-shadow:inset -3px -3px 0 rgba(0,0,0,.35)}
+input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:36px;background:transparent;margin:0;cursor:pointer;--fill:50%}
+input[type=range]:focus{outline:none}
+input[type=range]::-webkit-slider-runnable-track{height:18px;background:linear-gradient(90deg,var(--gold) 0 var(--fill),#0d1030 var(--fill));border:3px solid #000}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:26px;height:34px;margin-top:-11px;background:#fff1e8;border:3px solid #000;box-shadow:inset -4px -4px 0 #c2c3c7}
+input[type=range]::-moz-range-track{height:12px;background:#0d1030;border:3px solid #000}
+input[type=range]::-moz-range-progress{height:12px;background:var(--gold);border:3px solid #000}
+input[type=range]::-moz-range-thumb{width:20px;height:28px;border-radius:0;background:#fff1e8;border:3px solid #000;box-shadow:inset -4px -4px 0 #c2c3c7}
+.ticks{display:flex;justify-content:space-between;font-size:18px;color:var(--dim);padding:0 4px}
+.tier{font-size:18px;text-align:center;margin:6px 0 12px;text-shadow:3px 3px 0 #000}
+.nums{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;text-align:center}
+.nums div{background:#0d1030;border:3px solid #000;padding:8px 4px}
+.nums span{display:block;font-family:'Press Start 2P',monospace;font-size:8px;color:var(--dim);margin-bottom:6px}
+.nums b{font-family:'Press Start 2P',monospace;font-size:14px}
+.src{font-size:18px;color:var(--dim);margin-top:10px;text-align:center}
+.src a{color:var(--blue)}
+.crowd{font-size:20px;margin-top:8px;text-align:center}
+.total{font-size:30px;color:var(--gold);margin:10px 0 4px;text-shadow:3px 3px 0 #000}
+.rank{font-size:11px;color:var(--green);margin-bottom:6px}
+.emojis{font-size:34px;letter-spacing:4px;margin:6px 0}
+textarea{width:100%;margin-top:8px;background:#0d1030;color:var(--ink);border:3px solid #000;font-family:'VT323',monospace;font-size:20px;padding:6px}
+.ticker{font-size:10px;display:flex;justify-content:space-between;margin-bottom:8px;gap:6px}
+.pxcv{width:100%;image-rendering:pixelated;border:3px solid #000;display:block;touch-action:none}
+.axis{display:flex;justify-content:space-between;font-size:16px;color:var(--dim);padding:2px 2px 0}
+.legend{display:flex;gap:14px;justify-content:center;font-size:18px;color:var(--dim);margin-top:4px;flex-wrap:wrap}
+.sw{display:inline-block;width:12px;height:12px;border:2px solid #000;vertical-align:-1px;margin-right:4px}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:8px;text-align:center}
+.stats div{background:#0d1030;border:3px solid #000;padding:6px 2px}
+.stats b{display:block;font-family:'Press Start 2P',monospace;font-size:12px;margin-bottom:4px}
+.stats span{font-size:16px;color:var(--dim)}
+details.q{background:#0d1030;border:3px solid #000;margin-top:8px}
+details.q summary{list-style:none;cursor:pointer;padding:8px;display:grid;grid-template-columns:auto 1fr auto;gap:8px;align-items:center}
+details.q summary::-webkit-details-marker{display:none}
+details.q summary .arr{font-family:'Press Start 2P',monospace;font-size:9px;color:var(--gold);transition:transform .15s;display:inline-block}
+details.q[open] summary .arr{transform:rotate(90deg)}
+details.q .meta{font-size:18px;color:var(--dim)}
+details.q .pts{font-family:'Press Start 2P',monospace;font-size:10px;text-align:right;line-height:1.6}
+details.q .pts small{display:block;color:var(--dim);font-size:8px}
+.dist{padding:0 8px 10px;position:relative}
+.dist .qt{font-size:19px;margin-bottom:6px}
+.tip{position:absolute;top:-6px;transform:translateX(-50%);background:#fff1e8;color:#1a1c2c;font-family:'Press Start 2P',monospace;font-size:9px;padding:6px 7px;border:3px solid #000;white-space:nowrap;pointer-events:none;z-index:2}
+.modal{position:fixed;inset:0;background:rgba(5,6,20,.85);display:flex;align-items:flex-start;justify-content:center;padding:20px 10px;overflow:auto;z-index:10}
+.modal .card{max-width:460px;width:100%}
+ul.rules{padding-left:18px;margin:8px 0}
+ul.rules li{margin:4px 0}
+.dev{margin-top:20px;text-align:center;font-size:18px}
+.dev input{width:100%}
+</style>
+</head>
+<body>
+<div id="app">
+  <header>
+    <div class="logo px" id="logo">PERCENTLE</div>
+    <div class="hbtns">
+      <button class="iconbtn" id="helpBtn">?</button>
+      <button class="iconbtn" id="statsBtn">STATS</button>
+      <button class="iconbtn" id="muteBtn">SND</button>
+    </div>
+  </header>
+
+  <canvas id="scene" width="200" height="112"></canvas>
+
+  <!-- HOME -->
+  <section id="home">
+    <div class="card center">
+      <div class="px small" id="homeDay"></div>
+      <p style="font-size:24px;margin:12px 0">Guess the percentage.<br>Your guess is how hard you draw the bow.<br>The target sits at the true answer.</p>
+      <div class="small" style="line-height:1.8">5 QUESTIONS · 20 SEC EACH<br>CLOSER = MORE POINTS · EXACT = DOUBLE</div>
+      <button class="btn" id="playBtn">PLAY</button>
+    </div>
+  </section>
+
+  <!-- PLAY -->
+  <section id="play" hidden>
+    <div class="card">
+      <div class="row"><span class="chip px" id="cat"></span><span class="px small" id="prog"></span></div>
+      <div class="timerwrap"><div id="timer"></div></div>
+      <div class="qrow"><img id="qicon" alt=""><div id="qtext"></div></div>
+      <div id="controls">
+        <div class="readrow">
+          <button class="nudge px" id="minus" aria-label="minus one">-</button>
+          <div class="readout px" id="readout">50%</div>
+          <button class="nudge px" id="plus" aria-label="plus one">+</button>
+        </div>
+        <input type="range" id="slider" min="0" max="100" value="50" aria-label="your guess in percent">
+        <div class="ticks"><span>0</span><span>25</span><span>50</span><span>75</span><span>100</span></div>
+        <button class="btn red" id="fireBtn">FIRE</button>
+      </div>
+      <div id="reveal" hidden>
+        <div class="tier px" id="tierName"></div>
+        <div class="nums">
+          <div><span>ANSWER</span><b id="rvA"></b></div>
+          <div><span>YOU</span><b id="rvG"></b></div>
+          <div><span>POINTS</span><b id="rvP"></b></div>
+        </div>
+        <div class="crowd" id="rvCrowd"></div>
+        <div class="src" id="rvSrc"></div>
+        <button class="btn" id="nextBtn">NEXT</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- END -->
+  <section id="end" hidden>
+    <div class="card center">
+      <div class="px small" id="endDay"></div>
+      <div class="total px" id="total"></div>
+      <div class="rank px" id="rank"></div>
+      <div class="emojis" id="emojiRow"></div>
+      <button class="btn" id="copyBtn">COPY RESULTS</button>
+      <textarea id="shareBox" rows="3" readonly hidden></textarea>
+      <button class="btn ghost" id="againBtn">PLAY AGAIN</button>
+      <div class="small" id="againNote" style="margin-top:8px">REPLAYS DON'T CHANGE YOUR OFFICIAL SCORE</div>
+    </div>
+
+    <div class="card">
+      <div class="h2 px">YOU VS EVERYONE</div>
+      <canvas class="pxcv" id="histCv" width="160" height="64"></canvas>
+      <div class="axis"><span>0</span><span>200</span><span>400</span><span>600+</span></div>
+      <div class="legend"><span><i class="sw" style="background:#5d7bd8"></i>players</span><span><i class="sw" style="background:#ffec27"></i>you</span><span><i class="sw" style="background:#fff1e8"></i>average</span></div>
+      <div class="small center" id="crowdNote" style="margin-top:8px"></div>
+    </div>
+
+    <div class="card">
+      <div class="h2 px">EACH QUESTION</div>
+      <div class="small">TAP A QUESTION TO SEE HOW EVERYONE GUESSED</div>
+      <div id="qList"></div>
+    </div>
+
+    <div id="endStats"></div>
+    <div class="card center"><span>Next shot in </span><b class="px" id="countdown" style="font-size:14px"></b></div>
+  </section>
+
+  <div class="dev card" id="devBox" hidden>
+    <div class="px small">DEV TOOLS</div>
+    <div style="margin:8px 0">Sky time: <b id="devHourLbl">live</b></div>
+    <input type="range" id="devHour" min="0" max="24" step="0.25" value="12">
+    <button class="iconbtn" id="devLive" style="margin-top:6px">USE REAL TIME</button>
+    <button class="iconbtn" id="resetBtn" style="margin-top:6px">RESET TODAY</button>
+  </div>
+</div>
+
+<div class="modal" id="statsModal" hidden><div style="width:100%;max-width:460px"><div id="modalStats"></div><button class="btn ghost" data-close>CLOSE</button></div></div>
+<div class="modal" id="helpModal" hidden><div class="card">
+  <div class="px" style="font-size:12px;color:var(--gold)">HOW TO PLAY</div>
+  <ul class="rules">
+    <li>Every day: 5 questions, one per category. Everyone gets the same ones.</li>
+    <li>Slide to guess the %. Higher % = harder draw = longer shot.</li>
+    <li>The target is hidden at the real answer. Fire and watch where you land.</li>
+    <li>Scoring is fair at the edges: missing 8% by 6 hurts more than missing 50% by 6.</li>
+    <li>🎯 BULLSEYE = exact (200) · 🟩 CLOSE CALL 80+ · 🟨 ON THE TARGET 55+ · 🟧 JUST MISSED 35+ · ⬆️⬇️ OVERSHOT / UNDERSHOT = you smash a pot.</li>
+    <li>The sky follows your real clock.</li>
+  </ul>
+  <button class="btn ghost" data-close>GOT IT</button>
+</div></div>
+
+<script>
+/* ============================================================
+   CONFIG — edit these to change the game
+   ============================================================ */
+const CONFIG = {
+  NAME: 'PERCENTLE',
+  LAUNCH: [2026, 10, 19],   // year, month (0-based: 10 = Nov), day  → puzzle #1
+  TIME: 20,                 // seconds per question
+};
+
+// One question per category per day. Day N uses index (N-1) % length.
+const CATS = [
+  { name: 'GEOGRAPHY', qs: [
+    { q: "What % of the world's countries are landlocked?", a: 22.6, icon: 'globe', src: 'Britannica: 44 of 195 countries', url: 'https://www.britannica.com/topic/landlocked-country' },
+    { q: "What % of Earth's surface is covered by water?", a: 71, icon: 'wave', src: 'USGS' },
+    { q: "What % of Earth's land area is desert?", a: 33, icon: 'cactus', src: 'About one-third (USGS)' },
+    { q: "What % of the world's people live in Asia?", a: 59, icon: 'globe', src: 'UN World Population Prospects 2024' },
+    { q: "What % of Earth's land is covered by forest?", a: 31, icon: 'tree', src: 'FAO Global Forest Resources Assessment 2020' },
+  ]},
+  { name: 'HUMANS', qs: [
+    { q: "What % of men aged 18–49 have moderate-to-extensive balding?", a: 42, icon: 'bald', src: 'Rhodes et al., Dermatologic Surgery (1998)', url: 'https://pubmed.ncbi.nlm.nih.gov/9865198/' },
+    { q: "What % of people are left-handed?", a: 10, icon: 'hand', src: '2020 meta-analysis, ~10.6%' },
+    { q: "What % of an adult human body is water?", a: 60, icon: 'drop', src: 'USGS (up to 60%)' },
+    { q: "What % of your body's oxygen does your brain use?", a: 20, icon: 'brain', src: 'Standard physiology estimate (~20%)' },
+    { q: "What % of your bones are in your hands and feet?", a: 51, icon: 'bone', src: '106 of 206 bones' },
+  ]},
+  { name: 'FOOD & CULTURE', qs: [  // TODO: add more — this one repeats every day until you do
+    { q: "What % of Americans celebrate Christmas?", a: 90, icon: 'xmas', src: 'Pew Research Center: "Celebrating Christmas and the Holidays, Then and Now"', url: 'https://www.pewresearch.org/religion/2013/12/18/celebrating-christmas-and-the-holidays-then-and-now/' },
+  ]},
+  { name: 'CURRENT EVENTS', qs: [  // swap in fresh news questions daily
+    { q: "After reports of a second Jensen Huang affair, how much did Nvidia stock fall in after-hours trading?", a: 8.3, icon: 'chart', src: 'The Hill, Nov. 2026', url: 'https://thehill.com/business/6214833-nvidia-ceo-jesen-huang-affair/' },
+    { q: "What % of the world's electricity came from renewables in 2024?", a: 32, icon: 'bolt', src: 'Ember Global Electricity Review 2025' },
+    { q: "What % of U.S. adults say they use YouTube?", a: 84, icon: 'play', src: 'Pew Research Center, 2025' },
+    { q: "What % of new cars sold worldwide in 2024 were electric?", a: 20, icon: 'car', src: 'IEA Global EV Outlook 2025 (just over 20%)' },
+    { q: "What % of the world's people are 65 or older?", a: 10, icon: 'person', src: 'UN World Population Prospects 2024' },
+  ]},
+  { name: 'MISC', qs: [
+    { q: "What % of Americans pee in the shower (at least sometimes)?", a: 45, icon: 'shower', src: 'Talker Research survey of 2,000 Americans (2025)', url: 'https://talkerresearch.com/percentage-of-people-who-pee-in-the-shower-leaked-in-new-study/' },
+    { q: "What % of Earth's atmosphere is nitrogen?", a: 78, icon: 'cloud', src: 'NASA' },
+    { q: "What % of the solar system's mass is in the Sun?", a: 99.8, icon: 'sun', src: 'NASA' },
+    { q: "Over time, what % of the Moon's surface can be seen from Earth?", a: 59, icon: 'moon', src: 'NASA (libration)' },
+    { q: "Roughly what % of Earth's oxygen is produced by the ocean?", a: 50, icon: 'wave', src: 'NOAA (~50%)' },
+  ]},
+];
+const questionsFor = day => CATS.map(c => ({ ...c.qs[(day - 1) % c.qs.length], cat: c.name }));
+
+/* ============================================================
+   PIXEL SPRITES (10x10) for question icons
+   ============================================================ */
+const PAL = { b:'#29adff', d:'#065ab5', c:'#7ed7ff', g:'#00e436', h:'#008751', y:'#ffec27', o:'#ffa300', w:'#fff1e8', e:'#c2c3c7', n:'#ab5236', s:'#ffccaa', p:'#ff77a8', q:'#c8487a', r:'#ff004d', k:'#1a1c2c', m:'#fff6a0' };
+const SPRITES = {
+  drop:  ["....bb....","....bb....","...bbbb...","...bbbb...","..bbbbbb..","..bwbbbb..",".bwbbbbbb.",".bbbbbbbd.","..bbbbbd..","...dddd..."],
+  cactus:["....gg....","....gg....",".g..gg....",".g..gg..g.",".gg.gg..g.","..gggg.gg.","....gggg..","....gh....","yyyyghyyyy","yyyyyyyyyy"],
+  globe: ["...bbbb...",".bbggbbbb.",".bgggbbgb.","bbggbbggbb","bbbgbbgggb","bbbbbbbggb","bbgbbbbgbb",".bggbbbbb.",".bbgbbbbb.","...bbbb..."],
+  tree:  ["...gggg...","..gggggg..",".ggghgggg.",".ggggghgg.","ggghgggggg",".gggggggg.","..gggggg..","....nn....","....nn....","...nnnn..."],
+  snow:  ["....c.....",".c..c..c..","..c.c.c...","...ccc....","ccccwcccc.","...ccc....","..c.c.c...",".c..c..c..","....c.....",".........."],
+  hand:  ["..s.s.s...","..s.s.s.s.","..s.s.s.s.","..sssssss.","s.sssssss.","ssssssss..",".sssssss..","..ssssss..","..ssssss..","...ssss..."],
+  brain: ["..pppppp..",".ppqppppp.","ppqppqpppp","pppppqpqpp","pqppppppqp","ppppqppppp",".ppppppqp.","..pppppp..",".....pp...",".....pp..."],
+  bone:  ["..........","..........",".ww....ww.","wwww..wwww","wwwwwwwwww","eeeeeeeeee","eeee..eeee",".ee....ee.","..........",".........."],
+  dna:   ["r........b",".r......b.","..rwwwwb..","...r..b...","....rb....","....br....","...b..r...","..bwwwwr..",".b......r.","b........r"],
+  cloud: ["..........","..........","...www....","..wwwww...",".wwwwwwww.","wwwwwwwwww","wwwwwwwwww","eeeeeeeeee","..........",".........."],
+  sun:   ["....yy....",".y.oooo.y.","..oyyyyo..",".oyyyyyyo.","yoyyyyyyoy","yoyyyyyyoy",".oyyyyyyo.","..oyyyyo..",".y.oooo.y.","....yy...."],
+  moon:  ["...mmmm...","..mmmmmm..",".mmemmmmm.","mmmmmmemmm","mmmmmmmmmm","mmemmmmmmm","mmmmmmmemm",".mmmmemmm.","..mmmmmm..","...mmmm..."],
+  wave:  ["..........","..........","..ww......",".wccw...ww","wccccw.wcc","cccccccccc","bbcccbbccc","bbbbbbbbbb","dbbbdbbbbd","dddddddddd"],
+  bolt:  ["....yyy...","...yyy....","..yyy.....",".yyyyyyy..","....yyy...","...yyy....","..yyy.....",".yy.......","y.........",".........."],
+  play:  ["..........",".rrrrrrrr.","rrrrwrrrrr","rrrrwwrrrr","rrrrwwwrrr","rrrrwwrrrr","rrrrwrrrrr",".rrrrrrrr.","..........",".........."],
+  car:   ["..........","..........","...rrrr...","..rccrcr..",".rrrrrrrr.","rrrrrrrrrr","rrrrrrrrrr",".kk....kk.",".kk....kk.",".........."],
+  bald:  ["...ssss...","..swssss..","..ssssss..",".nsksskns.","..ssssss..","..ssqqss..","...ssss...","..bbbbbb..",".bbbbbbbb.",".bbbbbbbb."],
+  xmas:  ["....y.....","....g.....","...ggg....","..grggg...","...ggg....","..ggggy...",".gggrggg..","gggggggbg.","....n.....","...nnn...."],
+  chart: ["w.........","wr........","w.r.......","w..r..r...","w...rr.r..","w.......r.","w........r","w......rrr","w.......rr","wwwwwwwwww"],
+  shower:["..eeeee...",".....e....","...eeeee..","..eeeeeee.","...c.c.c..","..c.c.c...","...c.c.c..","..c.c.c...","...c.c.c..",".........."],
+  person:["...eeee...","...ssss...","...ssss...","....ss....","..bbbbbb..",".b.bbbb.b.",".s.bbbb.s.","...kkkk...","...k..k...","...k..k..."],
+};
+const spriteCache = {};
+function spriteURL(name){
+  if (spriteCache[name]) return spriteCache[name];
+  const rows = SPRITES[name] || SPRITES.globe;
+  const cv = document.createElement('canvas'); cv.width = 10; cv.height = 10;
+  const c = cv.getContext('2d');
+  rows.forEach((row, y) => [...row].forEach((ch, x) => { if (PAL[ch]) { c.fillStyle = PAL[ch]; c.fillRect(x, y, 1, 1); } }));
+  return (spriteCache[name] = cv.toDataURL());
+}
+
+/* ============================================================
+   SCORING
+   ============================================================ */
+// Distance in log-odds, so errors near 0% / 100% count for more.
+// 44 vs 50 → 77 pts.  2 vs 8 → 20 pts.  Exact (nearest %) → 200.
+function scoreGuess(g, a){
+  if (Math.round(a) === g) return { pts: 200, exact: true };
+  const L = p => { p = Math.min(99.5, Math.max(0.5, p)) / 100; return Math.log(p / (1 - p)); };
+  return { pts: Math.round(100 * Math.exp(-1.1 * Math.abs(L(g) - L(a)))), exact: false };
+}
+// Shot names, best to worst.
+function tierFor(res, g, a){
+  const over = g > a, p = res.pts;
+  if (res.exact)  return { key:'bull',  name:'BULLSEYE!',     emoji:'🎯', color:'#ffec27', hit:true, off:0 };
+  if (p >= 80)    return { key:'close', name:'CLOSE CALL',    emoji:'🟩', color:'#00e436', hit:true, off: p >= 90 ? 3.5 : 7 };
+  if (p >= 55)    return { key:'on',    name:'ON THE TARGET', emoji:'🟨', color:'#ffec27', hit:true, off: p >= 68 ? 11 : 15 };
+  if (p >= 35)    return { key:'just',  name:'JUST MISSED',   emoji:'🟧', color:'#ffa300', hit:false };
+  return over ? { key:'over',  name:'OVERSHOT', emoji:'⬆️', color:'#ff77a8', hit:false, pot:true }
+              : { key:'under', name:'UNDERSHOT', emoji:'⬇️', color:'#ff77a8', hit:false, pot:true };
+}
+const fmt = a => (Math.round(a * 10) / 10).toString();
+const esc = t => String(t).replace(/[&<>"]/g, c => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;' }[c]));
+const srcHTML = q => q.url ? `<a href="${q.url}" target="_blank" rel="noopener">${esc(q.src)} ↗</a>` : esc(q.src);
+
+/* ============================================================
+   SIMULATED CROWD (stand-in until there's a real backend)
+   Deterministic per day, so every visitor sees the same crowd.
+   ============================================================ */
+function mulberry32(a){ return () => { a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+function gauss(r){ let u = 0; while (!u) u = r(); return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * r()); }
+const simMemo = {};
+function simulateDay(day){
+  if (simMemo[day]) return simMemo[day];
+  const qs = questionsFor(day), r = mulberry32(day * 7919 + 17);
+  const N = 900 + Math.floor(r() * 1600);
+  const bias = qs.map(() => gauss(r) * 9);            // the crowd's shared misconception per question
+  const counts = qs.map(() => new Array(101).fill(0));
+  const pts = qs.map(() => new Uint16Array(N));
+  const totals = new Uint16Array(N);
+  const gSum = qs.map(() => 0);
+  for (let i = 0; i < N; i++) {
+    const skill = r(); let tot = 0;
+    qs.forEach((q, k) => {
+      let g; const u = r();
+      if (u < 0.45 + skill * 0.45) g = q.a + bias[k] + gauss(r) * (22 - skill * 16);  // knows roughly
+      else if (u < 0.93) g = 50 + gauss(r) * 18;                                      // gut feeling near 50
+      else g = r() * 100;                                                             // random
+      const v = r(); if (v < 0.4) g = Math.round(g / 5) * 5; else if (v < 0.55) g = Math.round(g / 10) * 10;
+      g = Math.max(0, Math.min(100, Math.round(g)));
+      counts[k][g]++; gSum[k] += g;
+      const p = scoreGuess(g, q.a).pts; pts[k][i] = p; tot += p;
+    });
+    totals[i] = tot;
+  }
+  const avgPts = pts.map(a => Math.round(a.reduce((s, x) => s + x, 0) / N));
+  const avgTotal = Math.round(totals.reduce((s, x) => s + x, 0) / N);
+  return (simMemo[day] = { N, counts, pts, totals, avgPts, avgTotal, avgGuess: gSum.map(s => Math.round(s / N)) });
+}
+function beatPct(arr, mine){ let lo = 0, eq = 0; for (const x of arr) { if (x < mine) lo++; else if (x === mine) eq++; } return Math.round((lo + eq / 2) / arr.length * 100); }
+
+/* ============================================================
+   DAY + STORAGE
+   ============================================================ */
+const now0 = new Date();
+const dk = `${now0.getFullYear()}-${now0.getMonth()+1}-${now0.getDate()}`;
+const dayNum = Math.max(1, Math.floor((Date.UTC(now0.getFullYear(), now0.getMonth(), now0.getDate()) - Date.UTC(...CONFIG.LAUNCH)) / 864e5) + 1);
+const questions = questionsFor(dayNum);
+const SIM = simulateDay(dayNum);
+
+let store = {};
+try { store = JSON.parse(localStorage.getItem('percentle_v1') || '{}') || {}; } catch (e) { store = {}; }
+store.history = store.history || {};
+let run = (store.run && store.run.dk === dk) ? store.run : { dk, answers: [], done: false };
+function save(){ try { localStorage.setItem('percentle_v1', JSON.stringify(store)); } catch (e) {} }
+
+/* ============================================================
+   SOUND
+   ============================================================ */
+let ac = null;
+function tone(f, dur, type = 'square', vol = .04, delay = 0, f2 = null){
+  if (store.muted) return;
+  try {
+    ac = ac || new (window.AudioContext || window.webkitAudioContext)();
+    const t = ac.currentTime + delay, o = ac.createOscillator(), g = ac.createGain();
+    o.type = type; o.frequency.setValueAtTime(f, t);
+    if (f2) o.frequency.exponentialRampToValueAtTime(f2, t + dur);
+    g.gain.setValueAtTime(vol, t); g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    o.connect(g).connect(ac.destination); o.start(t); o.stop(t + dur + .02);
+  } catch (e) {}
+}
+const sfx = {
+  tick: v => tone(160 + v * 6, .03, 'square', .025),
+  fire: () => { tone(900, .25, 'sawtooth', .03, 0, 200); tone(120, .08, 'square', .06); },
+  thunk: () => tone(90, .14, 'square', .08),
+  hit: k => {
+    const seq = { bull:[523,659,784,1046,1318], close:[523,659,784,1046], on:[440,554,659] }[k] || [];
+    seq.forEach((f, i) => tone(f, .12, 'square', .04, .08 + i * .08));
+  },
+  miss: () => tone(220, .4, 'triangle', .06, .05, 90),
+  shatter: () => { [1400, 1100, 1700, 900, 1300].forEach((f, i) => tone(f, .06, 'square', .035, i * .03, f * .6)); tone(160, .12, 'triangle', .06); },
+};
+function buzz(ms){ try { navigator.vibrate && navigator.vibrate(ms); } catch (e) {} }
+
+/* ============================================================
+   SKY THAT FOLLOWS THE REAL CLOCK
+   Keyframes by local hour; colors are interpolated between them.
+   ============================================================ */
+const KEYS = [
+  [0,    { top:'#04050d', bot:'#0a0d22', glow:'#6a74b8', glowR:16, glowA:.2,  sun:'#fff6d0', far:'#0d1128', near:'#0a0d1f', tree:'#06081a', treeHi:'#0b1028', tint:'#04050d', tintA:.62, stars:1,   cloud:'#1a1e3a', cloudA:.35 }],
+  [5,    { top:'#0a0c26', bot:'#2a2350', glow:'#c27a9a', glowR:40, glowA:.25, sun:'#ffe0b0', far:'#221e40', near:'#18162f', tree:'#0e0e22', treeHi:'#1a1a36', tint:'#1a1840', tintA:.45, stars:.55, cloud:'#4a3a6a', cloudA:.5 }],
+  [6.5,  { top:'#3d4f94', bot:'#ff9e6e', glow:'#ffd08a', glowR:70, glowA:.75, sun:'#ffe08a', far:'#9a5f7e', near:'#6b4566', tree:'#2c2440', treeHi:'#4a3355', tint:'#ff9e6e', tintA:.2,  stars:0,   cloud:'#ffc4a8', cloudA:.9 }],
+  [8.5,  { top:'#5d9be0', bot:'#c8ecfa', glow:'#ffffff', glowR:34, glowA:.35, sun:'#fffbe6', far:'#8fb5dc', near:'#6d93c4', tree:'#2f6a4a', treeHi:'#5fa055', tint:'#ffffff', tintA:0,   stars:0,   cloud:'#f6fbff', cloudA:.95 }],
+  [12,   { top:'#4a8ad6', bot:'#d4f1fb', glow:'#ffffff', glowR:30, glowA:.4,  sun:'#ffffff', far:'#9dc4e8', near:'#7aa3d0', tree:'#2f7a4a', treeHi:'#6cbf5a', tint:'#ffffff', tintA:0,   stars:0,   cloud:'#ffffff', cloudA:1 }],
+  [16,   { top:'#5687cc', bot:'#f0dfb2', glow:'#fff0c0', glowR:45, glowA:.45, sun:'#fff3c4', far:'#a9a6c6', near:'#8186ad', tree:'#2d5c40', treeHi:'#5d9a4a', tint:'#ffc070', tintA:.08, stars:0,   cloud:'#fff4e0', cloudA:.95 }],
+  [18,   { top:'#5b4f98', bot:'#ffad5e', glow:'#ffd27a', glowR:80, glowA:.85, sun:'#ffe27a', far:'#c0786a', near:'#8a4f5e', tree:'#2a3428', treeHi:'#4a5a30', tint:'#ff9a50', tintA:.22, stars:0,   cloud:'#ffb98a', cloudA:.9 }],
+  [19.3, { top:'#26285a', bot:'#c75a68', glow:'#ff8a6a', glowR:50, glowA:.5,  sun:'#ffd0a0', far:'#5a3a5a', near:'#3a2a48', tree:'#191a2c', treeHi:'#2a2a40', tint:'#3a2a60', tintA:.38, stars:.35, cloud:'#6a4a7a', cloudA:.6 }],
+  [21,   { top:'#0a0d28', bot:'#1c2456', glow:'#8a94d8', glowR:20, glowA:.25, sun:'#fff6d0', far:'#1a2350', near:'#131c3a', tree:'#0b1224', treeHi:'#14203a', tint:'#0b0e2a', tintA:.5,  stars:1,   cloud:'#2a3060', cloudA:.4 }],
+];
+KEYS.push([24, KEYS[0][1]]);
+const rgb = h => [parseInt(h.slice(1, 3), 16), parseInt(h.slice(3, 5), 16), parseInt(h.slice(5, 7), 16)];
+const mixRGB = (a, b, t) => [a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t, a[2] + (b[2] - a[2]) * t].map(Math.round);
+const css = c => `rgb(${c[0]},${c[1]},${c[2]})`;
+const hex = c => '#' + c.map(v => v.toString(16).padStart(2, '0')).join('');
+function paletteAt(h){
+  let i = 0; while (i < KEYS.length - 2 && h >= KEYS[i + 1][0]) i++;
+  const [h0, A] = KEYS[i], [h1, B] = KEYS[i + 1], t = (h - h0) / (h1 - h0), P = {};
+  for (const k in A) P[k] = typeof A[k] === 'number' ? A[k] + (B[k] - A[k]) * t : hex(mixRGB(rgb(A[k]), rgb(B[k]), t));
+  P.farHi = hex(mixRGB(rgb(P.far), rgb(P.bot), .3));
+  P.nearHi = hex(mixRGB(rgb(P.near), rgb(P.bot), .18));
+  return P;
+}
+// Sun 6:00–19:00, moon the rest of the night, each on an arc across the sky.
+function celestial(h){
+  const sun = h >= 6 && h < 19, t = sun ? (h - 6) / 13 : ((h - 19 + 24) % 24) / 11;
+  return { sun, x: Math.round(16 + t * 168), y: Math.round(80 - Math.sin(Math.PI * t) * 64) };
+}
+let devHour = null;
+const hourNow = () => { if (devHour !== null) return devHour; const d = new Date(); return d.getHours() + d.getMinutes() / 60; };
+
+const BAYER = [[0,8,2,10],[12,4,14,6],[3,11,1,9],[15,7,13,5]].map(r => r.map(v => (v + .5) / 16));
+const sky = { key: null, P: null, body: null, img: null, clouds: [] };
+function refreshSky(){
+  const h = hourNow(), key = Math.round(h * 30);
+  if (key === sky.key) return;
+  const P = paletteAt(h), body = celestial(h);
+  Object.assign(sky, { key, P, body });
+  tintMap.clear();
+  // dithered gradient + glow around the sun/moon
+  const c = document.createElement('canvas'); c.width = W; c.height = GROUND;
+  const g = c.getContext('2d'), img = g.createImageData(W, GROUND), d = img.data;
+  const top = rgb(P.top), bot = rgb(P.bot), glow = rgb(P.glow), L = 12;
+  for (let y = 0; y < GROUND; y++) {
+    const f = Math.pow(y / (GROUND - 1), 1.2);
+    for (let x = 0; x < W; x++) {
+      const th = BAYER[y & 3][x & 3], pos = f * L, lo = Math.floor(pos);
+      let col = mixRGB(top, bot, Math.min(1, ((pos - lo) > th ? lo + 1 : lo) / L));
+      const dx = x - body.x, dy = (y - body.y) * 1.2, dist = Math.sqrt(dx * dx + dy * dy);
+      const gq = Math.floor(Math.max(0, 1 - dist / P.glowR) * P.glowA * 6 + th) / 6;
+      if (gq > 0) col = mixRGB(col, glow, Math.min(1, gq));
+      const i = (y * W + x) * 4; d[i] = col[0]; d[i + 1] = col[1]; d[i + 2] = col[2]; d[i + 3] = 255;
+    }
+  }
+  g.putImageData(img, 0, 0); sky.img = c;
+  // dithered cloud sprites, tinted for the time of day
+  const cr = mulberry32(42);
+  sky.clouds = Array.from({ length: 5 }, (_, n) => {
+    const w = 26 + Math.floor(cr() * 22), hh = 9 + Math.floor(cr() * 4);
+    const cc = document.createElement('canvas'); cc.width = w; cc.height = hh;
+    const cg = cc.getContext('2d');
+    const blobs = Array.from({ length: 4 }, () => ({ x: 5 + cr() * (w - 10), y: hh - 3 - cr() * 3, rx: 5 + cr() * 7, ry: 3 + cr() * 3 }));
+    const shade = hex(mixRGB(rgb(P.cloud), bot, .3));
+    for (let y = 0; y < hh; y++) for (let x = 0; x < w; x++) {
+      let v = -1; for (const b of blobs) v = Math.max(v, 1 - ((x - b.x) / b.rx) ** 2 - ((y - b.y) / b.ry) ** 2);
+      if (v > BAYER[y & 3][x & 3] * .55) { cg.fillStyle = y > hh - 3 ? shade : P.cloud; cg.fillRect(x, y, 1, 1); }
+    }
+    return { c: cc, base: n * 71 + cr() * 30, y: 6 + Math.floor(cr() * 34), speed: .5 + cr() * .8 };
+  });
+}
+// Foreground colors get tinted toward the time-of-day color (dark at night, warm at sunset).
+const tintMap = new Map();
+function T(h){ let v = tintMap.get(h); if (!v) { v = css(mixRGB(rgb(h), rgb(sky.P.tint), sky.P.tintA)); tintMap.set(h, v); } return v; }
+
+/* ============================================================
+   SCENE (pixel canvas 200x112)
+   ============================================================ */
+const cv = document.getElementById('scene'), ctx = cv.getContext('2d');
+const W = 200, H = 112, GROUND = 92, TC = 66;
+const BOW_Y = 74;
+const STARS = Array.from({ length: 70 }, (_, i) => ({ x: (i * 73.7) % W, y: (i * 37.3) % 66, p: i * 1.7, k: ((i * 0.618) % 1) }));
+const S = { mode: 'aim', draw: 5, cam: 0, tx: 400, arrow: null, flight: null, labels: null, pot: null };
+const fract = v => v - Math.floor(v);
+const hash = i => fract(Math.sin(i * 12.9898) * 43758.5453);
+const tri = v => 1 - 2 * Math.abs(fract(v) - .5);
+
+function R(x, y, w, h, col){ ctx.fillStyle = col; ctx.fillRect(Math.round(x), Math.round(y), w, h); }
+function line(x0, y0, x1, y1, col){
+  x0 = Math.round(x0); y0 = Math.round(y0); x1 = Math.round(x1); y1 = Math.round(y1);
+  const dx = Math.abs(x1 - x0), dy = -Math.abs(y1 - y0), sx = x0 < x1 ? 1 : -1, sy = y0 < y1 ? 1 : -1;
+  let err = dx + dy; ctx.fillStyle = col;
+  for (let i = 0; i < 400; i++) {
+    ctx.fillRect(x0, y0, 1, 1);
+    if (x0 === x1 && y0 === y1) break;
+    const e2 = 2 * err;
+    if (e2 >= dy) { err += dy; x0 += sx; }
+    if (e2 <= dx) { err += dx; y0 += sy; }
+  }
+}
+function drawArrow(x, y, ang){
+  for (let i = 0; i < 11; i++) {
+    const px = Math.round(x - Math.cos(ang) * i), py = Math.round(y - Math.sin(ang) * i);
+    R(px, py, 1, 1, i < 2 ? '#e8e8f0' : i < 8 ? '#f0c070' : '#00e4ff');
+    if (i >= 8) R(px, py - 1, 1, 1, '#ffffff');
+  }
+}
+function drawArcher(ox, draw, nocked){
+  const x = Math.round(ox), G = GROUND;
+  if (x < -40 || x > W) return;
+  R(x+3, G-10, 2, 10, T('#3b2a20')); R(x+6, G-10, 2, 10, T('#3b2a20'));
+  R(x+2, G-2, 3, 2, T('#1a1c2c')); R(x+6, G-2, 3, 2, T('#1a1c2c'));
+  R(x+1, G-22, 1, 11, T('#8a2a2a'));
+  R(x+2, G-21, 7, 11, T('#c8a070')); R(x+2, G-13, 7, 1, T('#6b3e26'));
+  R(x+3, G-27, 5, 6, T('#ffccaa')); R(x+1, G-29, 9, 2, T('#e87a2a')); R(x+3, G-31, 5, 2, T('#e87a2a')); R(x+6, G-25, 1, 1, '#1a1c2c');
+  const bx = x + 17, by = BOW_Y;
+  R(x+9, by-1, bx - x - 9, 2, T('#c8a070')); R(bx-1, by-1, 2, 2, T('#ffccaa'));
+  for (let dy = -10; dy <= 10; dy++) R(bx + Math.round(3 * Math.cos(dy / 10 * Math.PI / 2)), by + dy, 1, 1, T('#ab5236'));
+  const pull = bx - 1 - draw;
+  line(bx, by - 10, pull, by, T('#e0e0e8')); line(pull, by, bx, by + 10, T('#e0e0e8'));
+  line(x + 8, G - 19, pull - 1, by - 1, T('#c8a070'));
+  R(pull - 1, by - 1, 2, 2, T('#ffccaa'));
+  if (nocked) drawArrow(pull + 12, by, 0);
+}
+function drawTarget(x){
+  if (x < -25 || x > W + 25) return;
+  R(x + 3, TC + 8, 2, GROUND - TC - 8, T('#6b3e26')); R(x - 5, TC + 12, 2, GROUND - TC - 12, T('#6b3e26'));
+  const rings = [[20,'#fff1e8'],[17,'#1a1c2c'],[13,'#29adff'],[9,'#ff004d'],[5,'#ffec27'],[2,'#ffa300']];
+  for (const [r, col] of rings) { const tc = T(col); for (let dy = -r; dy <= r; dy++) {
+    const hw = Math.round(r * 0.38 * Math.sqrt(1 - (dy / r) ** 2));
+    R(x - hw, TC + dy, hw * 2 + 1, 1, tc);
+  } }
+}
+function drawBody(t){
+  const { x, y, sun } = sky.body, r = sun ? 8 : 7;
+  const col = sun ? sky.P.sun : '#f4f0c8';
+  for (let dy = -r; dy <= r; dy++) for (let dx = -r; dx <= r; dx++) if (dx*dx + dy*dy <= r*r + 1) R(x + dx, y + dy, 1, 1, col);
+  if (!sun) [[-3,-2,2],[2,2,2],[-1,4,1],[3,-3,1]].forEach(([dx, dy, s]) => R(x + dx, y + dy, s, s, '#d0c890'));
+}
+function pine(x, base, h, col, hi){
+  x = Math.round(x); const w = Math.max(2, Math.round(h * .32)), tierH = Math.max(3, Math.round(h / 3.2));
+  R(x, base - 2, 1, 3, col);
+  for (let row = 0; row < h; row++) {
+    const k = row / h, tier = (row % tierH) / tierH;
+    const hw = Math.round((1 - k) * w * (.55 + .45 * (1 - tier)));
+    R(x - hw, base - 2 - row, hw * 2 + 1, 1, col);
+    if (hw > 1) R(x - hw, base - 2 - row, Math.ceil(hw * .6), 1, hi);
+  }
+}
+function text(str, x, y, col){
+  ctx.font = '8px "Press Start 2P", monospace'; ctx.textAlign = 'center';
+  ctx.fillStyle = '#000'; ctx.fillText(str, x + 1, y + 1); ctx.fillStyle = col; ctx.fillText(str, x, y);
+}
+function render(t){
+  refreshSky();
+  const P = sky.P, cam = S.cam;
+  ctx.drawImage(sky.img, 0, 0);
+  if (P.stars > .02) for (const s of STARS) {
+    if (s.k > P.stars) continue;
+    const x = ((s.x - cam * .05) % W + W) % W;
+    if (Math.sin(t / 600 + s.p) > -.6) R(x, s.y, 1, 1, Math.sin(t / 900 + s.p) > .5 ? '#fff1e8' : '#8a92d0');
+  }
+  drawBody(t);
+  ctx.globalAlpha = P.cloudA;
+  for (const c of sky.clouds) { const x = ((c.base + t / 1000 * c.speed - cam * .08) % 300 + 300) % 300 - 50; ctx.drawImage(c.c, Math.round(x), c.y); }
+  ctx.globalAlpha = 1;
+  // far mountains (lit on rising slopes)
+  let prev = 0;
+  for (let x = 0; x < W; x++) {
+    const wx = x + cam * .15, base = 30 + 14 * tri(wx / 53) + 7 * tri(wx / 21 + .3), h = Math.round(base + 2 * tri(wx / 7));
+    R(x, GROUND - h, 1, h, base >= prev ? P.farHi : P.far); prev = base;
+  }
+  prev = 0;
+  for (let x = 0; x < W; x++) {
+    const wx = x + cam * .3, base = 16 + Math.sin(wx * .04) * 5 + Math.sin(wx * .013 + 1) * 6, h = Math.round(base);
+    R(x, GROUND - h, 1, h, base >= prev ? P.nearHi : P.near); prev = base;
+  }
+  // pine rows (parallax)
+  const p1 = cam * .55, p2 = cam * .85;
+  for (let i = Math.floor((p1 - 10) / 6); i * 6 - p1 < W + 10; i++) { if (hash(i) < .25) continue; pine(i * 6 - p1 + hash(i + 9) * 3, GROUND + 1, 7 + Math.floor(hash(i + 3) * 12), P.tree, P.treeHi); }
+  for (let i = Math.floor((p2 - 30) / 26); i * 26 - p2 < W + 30; i++) { if (hash(i + 50) < .45) continue; pine(i * 26 - p2 + hash(i + 7) * 10, GROUND + 1, 20 + Math.floor(hash(i + 11) * 14), P.tree, P.treeHi); }
+  // ground
+  R(0, GROUND, W, H - GROUND, T('#3f8a3a')); R(0, GROUND, W, 1, T('#7cc85a')); R(0, GROUND + 9, W, H - GROUND - 9, T('#5a3a28'));
+  const tuft = T('#7cc85a'), dark = T('#2f6a30');
+  for (let x = 0; x < W; x++) { const wx = Math.floor(x + cam); if (wx % 17 === 0) R(x, GROUND - 1, 1, 1, tuft); if (wx % 29 === 5) R(x, GROUND - 2, 1, 2, tuft); if (wx % 13 === 7) R(x, GROUND + 4, 1, 1, dark); }
+  drawArcher(14 - cam, S.mode === 'aim' ? S.draw : 0, S.mode === 'aim');
+  drawTarget(S.tx - cam);
+  drawPot(t);
+  if (S.arrow) drawArrow(S.arrow.x - cam, S.arrow.y, S.arrow.ang);
+  if (S.labels && S.mode === 'landed') {
+    text(S.labels.answer, S.tx - cam, TC - 26, '#ffec27');
+    text(S.labels.you, S.labels.youX - cam, GROUND + 15, '#fff1e8');
+  }
+}
+
+function launch(g, a, res, tier){
+  const tx = 260 + a * 3;            // target position encodes the true answer (off-screen while aiming)
+  S.tx = tx; S.pot = null;
+  const over = g > a, sx = 33, sy = BOW_Y;
+  let ex, ey;
+  if (tier.hit) { ex = tx; ey = TC - (res.exact ? 0 : (over ? 1 : -1) * tier.off); }
+  else if (tier.key === 'just') { ex = over ? tx + 12 : tx - 11; ey = GROUND + 1; }
+  else {                              // over/undershot: the arrow smashes a pot sitting on the ground
+    const d = 30 + (35 - res.pts) * 3;
+    ex = over ? tx + d : Math.max(70, tx - d); ey = GROUND - 5;
+    S.pot = { x: ex, broken: false, shards: [] };
+  }
+  const dist = ex - sx;
+  let arcH = 22 + dist * 0.11;
+  if (over && !tier.hit) {           // clear the top of the target on the way over
+    const tt = (tx + 6 - sx) / dist, ly = sy + (ey - sy) * tt;
+    arcH = Math.max(arcH, (ly - (TC - 26)) / (4 * tt * (1 - tt)));
+  }
+  S.flight = { sx, sy, ex, ey, arcH, t0: performance.now(), dur: 700 + Math.abs(dist) * 2.2 };
+  S.labels = { answer: fmt(a) + '%', you: 'YOU ' + g + '%', youX: tier.hit ? tx : ex };
+  S.mode = 'flight';
+}
+function breakPot(){
+  const p = S.pot; if (!p) return;
+  p.broken = true;
+  const cols = ['#c8643c', '#8a3a20', '#e8915a', '#c8643c'];
+  for (let i = 0; i < 14; i++) p.shards.push({ x: p.x + (Math.random() - .5) * 6, y: GROUND - 6 + Math.random() * 4, vx: (Math.random() - .5) * 90, vy: -40 - Math.random() * 70, c: cols[i % 4], rest: false });
+  p.last = performance.now();
+}
+function drawPot(t){
+  const p = S.pot; if (!p) return;
+  const x = Math.round(p.x - S.cam);
+  if (x < -30 || x > W + 30) return;
+  const body = T('#c8643c'), dark = T('#8a3a20'), hi = T('#e8915a');
+  if (!p.broken) {
+    R(x - 2, GROUND - 11, 5, 1, dark); R(x - 1, GROUND - 10, 3, 1, body);
+    for (let dy = 0; dy < 9; dy++) { const hw = Math.round(4 * Math.sin((dy + 1) / 10 * Math.PI)); R(x - hw, GROUND - 9 + dy, hw * 2 + 1, 1, body); if (hw > 1) R(x - hw + 1, GROUND - 9 + dy, 1, 1, hi); }
+    R(x - 3, GROUND - 4, 7, 1, dark);
+  } else {
+    // jagged broken base left behind
+    R(x - 3, GROUND - 3, 7, 3, body); R(x - 3, GROUND - 4, 2, 1, body); R(x + 1, GROUND - 5, 2, 2, body); R(x - 2, GROUND - 3, 1, 2, hi);
+    const dt = Math.min(.05, (t - p.last) / 1000); p.last = t;
+    for (const s of p.shards) {
+      if (!s.rest) { s.vy += 260 * dt; s.x += s.vx * dt; s.y += s.vy * dt; if (s.y >= GROUND - 1) { s.y = GROUND - 1; s.rest = true; } }
+      R(s.x - S.cam, s.y, 2, 1, T(s.c));
+    }
+  }
+}
+function flightPos(f, t){
+  const x = f.sx + (f.ex - f.sx) * t;
+  const y = f.sy + (f.ey - f.sy) * t - f.arcH * 4 * t * (1 - t);
+  const dx = f.ex - f.sx, dy = (f.ey - f.sy) - f.arcH * 4 * (1 - 2 * t);
+  return { x, y, ang: Math.atan2(dy, dx) };
+}
+let onLanded = null;
+function frame(t){
+  if (S.mode === 'flight') {
+    const f = S.flight, k = Math.min(1, (t - f.t0) / f.dur), p = flightPos(f, k);
+    S.arrow = p;
+    S.cam = Math.max(0, p.x - 90);
+    if (k >= 1) { S.mode = 'landed'; onLanded && onLanded(); }
+  } else if (S.mode === 'landed') {
+    const f = S.flight; let goal;
+    { const lo = Math.min(f.ex, S.tx) - 30, hi = Math.max(f.ex, S.tx) + 30; goal = hi - lo <= W ? (lo + hi) / 2 - W / 2 : S.tx - W / 2; }
+    S.cam += (Math.max(0, goal) - S.cam) * 0.08;
+  } else if (S.mode === 'aim') {
+    S.cam += (0 - S.cam) * 0.15;
+  }
+  render(t);
+  requestAnimationFrame(frame);
+}
+requestAnimationFrame(frame);
+
+/* ============================================================
+   UI / GAME FLOW
+   ============================================================ */
+const $ = s => document.querySelector(s);
+const show = id => ['home', 'play', 'end'].forEach(s => $('#' + s).hidden = s !== id);
+const slider = $('#slider');
+let cur = 0, timerInt = null, firing = false, lastTick = 50;
+
+$('#logo').textContent = CONFIG.NAME;
+$('#homeDay').textContent = `${CONFIG.NAME} #${dayNum}`;
+$('#muteBtn').textContent = store.muted ? 'MUTE' : 'SND';
+
+function setGuess(v){
+  v = Math.max(0, Math.min(100, Math.round(v)));
+  slider.value = v; slider.style.setProperty('--fill', v + '%');
+  $('#readout').textContent = v + '%';
+  S.draw = Math.round(1 + v / 100 * 9);
+  if (v !== lastTick) { sfx.tick(v); if (v % 10 === 0) buzz(4); lastTick = v; }
+}
+slider.addEventListener('input', () => setGuess(+slider.value));
+$('#minus').onclick = () => setGuess(+slider.value - 1);
+$('#plus').onclick = () => setGuess(+slider.value + 1);
+
+function startQuestion(i){
+  cur = i; firing = false;
+  const q = questions[i];
+  S.mode = 'aim'; S.arrow = null; S.labels = null; S.pot = null; S.tx = 260 + q.a * 3;
+  $('#cat').textContent = q.cat;
+  $('#prog').textContent = `${i + 1}/${questions.length}`;
+  $('#qtext').textContent = q.q;
+  $('#qicon').src = spriteURL(q.icon);
+  $('#controls').hidden = false; $('#reveal').hidden = true;
+  lastTick = 50; slider.value = 50; slider.style.setProperty('--fill', '50%'); $('#readout').textContent = '50%'; S.draw = 5;
+  show('play');
+  startTimer();
+}
+function startTimer(){
+  clearInterval(timerInt);
+  const t0 = performance.now(); let lastSec = CONFIG.TIME;
+  const bar = $('#timer');
+  timerInt = setInterval(() => {
+    const left = CONFIG.TIME - (performance.now() - t0) / 1000;
+    bar.style.width = Math.max(0, left / CONFIG.TIME * 100) + '%';
+    bar.classList.toggle('low', left < 5);
+    const s = Math.ceil(left);
+    if (s < lastSec) { lastSec = s; if (s <= 5 && s > 0) tone(880, .05, 'square', .03); }
+    if (left <= 0) { clearInterval(timerInt); fire(); }
+  }, 100);
+}
+function fire(){
+  if (firing) return; firing = true; clearInterval(timerInt);
+  const q = questions[cur], g = +slider.value;
+  const res = scoreGuess(g, q.a), tier = tierFor(res, g, q.a);
+  run.answers[cur] = { g, a: q.a, pts: res.pts, exact: res.exact, tier: tier.key, emoji: tier.emoji };
+  store.run = run; save();
+  $('#controls').hidden = true;
+  sfx.fire(); buzz(20);
+  launch(g, q.a, res, tier);
+  onLanded = () => {
+    if (tier.pot) { breakPot(); sfx.shatter(); } else if (tier.hit) { sfx.thunk(); sfx.hit(tier.key); } else { sfx.thunk(); sfx.miss(); }
+    buzz(tier.hit ? 40 : 15);
+    const nm = $('#tierName'); nm.textContent = tier.name; nm.style.color = tier.color;
+    $('#rvA').textContent = fmt(q.a) + '%';
+    $('#rvG').textContent = g + '%';
+    $('#rvP').textContent = '+' + res.pts;
+    $('#rvCrowd').innerHTML = `Avg guess <b>${SIM.avgGuess[cur]}%</b> · you beat <b>${beatPct(SIM.pts[cur], res.pts)}%</b> of players`;
+    $('#rvSrc').innerHTML = 'Source: ' + srcHTML(q);
+    $('#nextBtn').textContent = cur < questions.length - 1 ? 'NEXT' : 'SEE RESULTS';
+    $('#reveal').hidden = false;
+    onLanded = null;
+  };
+}
+$('#fireBtn').onclick = fire;
+$('#nextBtn').onclick = () => { if (cur < questions.length - 1) startQuestion(cur + 1); else finish(); };
+
+function finish(){
+  const total = run.answers.reduce((s, r) => s + (r ? r.pts : 0), 0);
+  run.done = true; store.run = run;
+  if (!store.history[dk]) store.history[dk] = { day: dayNum, score: total, avg: SIM.avgTotal };  // first play of the day is the official one
+  save();
+  S.mode = 'aim'; S.arrow = null; S.labels = null; S.pot = null;
+  showEnd();
+}
+
+const myTotal = () => run.answers.reduce((s, r) => s + r.pts, 0);
+function shareText(){
+  return `🏹 ${CONFIG.NAME} #${dayNum} — ${myTotal()} pts\n${run.answers.map(r => r.emoji).join('')}\nBetter than ${beatPct(SIM.totals, myTotal())}% of players`;
+}
+function showEnd(){
+  const total = myTotal(), beat = beatPct(SIM.totals, total);
+  $('#endDay').textContent = `${CONFIG.NAME} #${dayNum}`;
+  $('#total').textContent = total + ' PTS';
+  $('#rank').textContent = `BETTER THAN ${beat}% OF PLAYERS`;
+  $('#emojiRow').textContent = run.answers.map(r => r.emoji).join('');
+  $('#shareBox').hidden = true;
+  drawHist($('#histCv'), total);
+  $('#crowdNote').textContent = `AVG ${SIM.avgTotal} PTS · ${SIM.N.toLocaleString()} PLAYERS (SIMULATED)`;
+  buildQuestionList();
+  renderStats($('#endStats'));
+  show('end');
+}
+$('#copyBtn').onclick = async () => {
+  const txt = shareText();
+  try { await navigator.clipboard.writeText(txt); $('#copyBtn').textContent = 'COPIED!'; setTimeout(() => $('#copyBtn').textContent = 'COPY RESULTS', 1500); }
+  catch (e) { const b = $('#shareBox'); b.hidden = false; b.value = txt; b.focus(); b.select(); $('#copyBtn').textContent = 'SELECT + COPY BELOW'; }
+};
+
+/* ---------- pixel line helper for small canvases ---------- */
+function pxLine(c, x0, y0, x1, y1, col, dotted){
+  x0 = Math.round(x0); y0 = Math.round(y0); x1 = Math.round(x1); y1 = Math.round(y1);
+  const dx = Math.abs(x1 - x0), dy = -Math.abs(y1 - y0), sx = x0 < x1 ? 1 : -1, sy = y0 < y1 ? 1 : -1; let e = dx + dy;
+  c.fillStyle = col;
+  for (let k = 0; k < 600; k++) { if (!dotted || k % 3 !== 2) c.fillRect(x0, y0, 1, 1); if (x0 === x1 && y0 === y1) break; const e2 = 2 * e; if (e2 >= dy) { e += dy; x0 += sx; } if (e2 <= dx) { e += dx; y0 += sy; } }
+}
+
+/* ---------- YOU VS EVERYONE: histogram of total scores ---------- */
+function drawHist(cvs, mine){
+  const c = cvs.getContext('2d'), w = 160, h = 64, BIN = 20, NB = 30;
+  c.fillStyle = '#0d1030'; c.fillRect(0, 0, w, h);
+  const bins = new Array(NB).fill(0);
+  for (const t of SIM.totals) bins[Math.min(NB - 1, Math.floor(t / BIN))]++;
+  const max = Math.max(...bins), myBin = Math.min(NB - 1, Math.floor(mine / BIN));
+  bins.forEach((n, i) => {
+    const bh = Math.round(n / max * (h - 10)), x = 5 + i * 5;
+    c.fillStyle = i === myBin ? '#ffec27' : '#5d7bd8';
+    c.fillRect(x, h - 3 - bh, 4, bh);
+    if (i !== myBin && bh > 2) { c.fillStyle = '#7d98f0'; c.fillRect(x, h - 3 - bh, 4, 1); }
+  });
+  c.fillStyle = '#2a3270'; c.fillRect(0, h - 3, w, 1);
+  const ax = 5 + Math.min(NB - .5, SIM.avgTotal / BIN) * 5;
+  pxLine(c, ax, 2, ax, h - 4, '#fff1e8', true);
+  // little arrow over your bar
+  const mx = 5 + myBin * 5 + 2, top = h - 3 - Math.round(bins[myBin] / max * (h - 10)) - 3;
+  c.fillStyle = '#ffec27'; c.fillRect(mx - 1, top - 2, 3, 1); c.fillRect(mx, top - 1, 1, 1);
+}
+
+/* ---------- per-question dropdown with answer distribution + hover ---------- */
+function buildQuestionList(){
+  const list = $('#qList'); list.innerHTML = '';
+  questions.forEach((q, k) => {
+    const r = run.answers[k];
+    const d = document.createElement('details'); d.className = 'q';
+    d.innerHTML = `<summary><span class="arr">▶</span>
+        <span>${r.emoji} ${q.cat}<br><span class="meta">you ${r.g}% · answer ${fmt(q.a)}% · avg guess ${SIM.avgGuess[k]}%</span></span>
+        <span class="pts">${r.pts}<small>AVG ${SIM.avgPts[k]}</small></span></summary>
+      <div class="dist"><div class="qt">${q.q}</div><div class="src" style="text-align:left;margin:0 0 8px">Source: ${srcHTML(q)}</div>
+        <div style="position:relative"><canvas class="pxcv" width="202" height="60"></canvas><div class="tip" hidden></div></div>
+        <div class="axis"><span>0%</span><span>25%</span><span>50%</span><span>75%</span><span>100%</span></div>
+        <div class="legend"><span><i class="sw" style="background:#5d7bd8"></i>guesses</span><span><i class="sw" style="background:#ff004d"></i>you</span><span><i class="sw" style="background:#ffec27"></i>answer</span></div>
+        <div class="small center" style="margin-top:6px">HOVER OR DRAG TO SEE HOW MANY CHOSE EACH %</div>
+      </div>`;
+    list.appendChild(d);
+    const cvs = d.querySelector('canvas'), tip = d.querySelector('.tip'), counts = SIM.counts[k];
+    const draw = hov => drawDist(cvs, counts, q.a, r.g, hov);
+    draw(-1);
+    const move = e => {
+      const rect = cvs.getBoundingClientRect();
+      const i = Math.max(0, Math.min(100, Math.floor((e.clientX - rect.left) / rect.width * 101)));
+      draw(i);
+      const tags = (i === r.g ? ' · YOU' : '') + (i === Math.round(q.a) ? ' · ANSWER' : '');
+      tip.textContent = `${i}% · ${counts[i].toLocaleString()} player${counts[i] === 1 ? '' : 's'}${tags}`;
+      tip.hidden = false;
+      const x = (i + .5) / 101 * rect.width;
+      tip.style.left = Math.max(70, Math.min(rect.width - 70, x)) + 'px';
+    };
+    cvs.addEventListener('pointermove', move);
+    cvs.addEventListener('pointerdown', move);
+    cvs.addEventListener('pointerleave', () => { tip.hidden = true; draw(-1); });
+  });
+}
+function drawDist(cvs, counts, ans, you, hov){
+  const c = cvs.getContext('2d'), w = 202, h = 60, A = Math.round(ans);
+  c.fillStyle = '#0d1030'; c.fillRect(0, 0, w, h);
+  for (let y = 14; y < h - 2; y += 14) { c.fillStyle = '#161c48'; c.fillRect(0, y, w, 1); }
+  const max = Math.max(...counts);
+  pxLine(c, A * 2, 0, A * 2, h - 2, '#ffec27', true);
+  if (you !== A) pxLine(c, you * 2, 0, you * 2, h - 2, '#ff004d', true);
+  for (let i = 0; i <= 100; i++) {
+    const bh = counts[i] ? Math.max(1, Math.round(counts[i] / max * (h - 6))) : 0;
+    c.fillStyle = i === hov ? '#fff1e8' : i === A ? '#ffec27' : i === you ? '#ff004d' : '#5d7bd8';
+    c.fillRect(i * 2, h - 2 - bh, 2, bh);
+  }
+  c.fillStyle = '#2a3270'; c.fillRect(0, h - 2, w, 2);
+  if (hov >= 0) { c.fillStyle = 'rgba(255,241,232,.35)'; c.fillRect(hov * 2, 0, 2, h - 2); }
+}
+
+/* ---------- stats: "stock chart" of your daily score vs the average ---------- */
+function historyList(){ return Object.values(store.history).sort((a, b) => a.day - b.day).map(x => ({ ...x, avg: x.avg ?? simulateDay(x.day).avgTotal })); }
+function renderStats(el){
+  const h = historyList(), n = h.length;
+  const last = n ? h[n - 1].score : 0, prev = n > 1 ? h[n - 2].score : null;
+  const up = prev === null || last >= prev;
+  const chg = prev ? ((last - prev) / Math.max(1, prev) * 100).toFixed(1) : null;
+  const avg = n ? Math.round(h.reduce((s, x) => s + x.score, 0) / n) : 0;
+  const best = n ? Math.max(...h.map(x => x.score)) : 0;
+  let streak = 0; const days = new Set(h.map(x => x.day));
+  for (let d = dayNum; days.has(d); d--) streak++;
+  el.innerHTML = `<div class="card">
+    <div class="ticker px"><span>$YOU <span style="color:${up ? 'var(--green)' : 'var(--red)'}">${last} ${chg === null ? '' : (up ? '▲+' : '▼') + chg + '%'}</span></span><span style="color:var(--dim)">$AVG ${n ? h[n - 1].avg : '-'}</span></div>
+    <canvas class="pxcv" width="160" height="64"></canvas>
+    <div class="legend"><span><i class="sw" style="background:${up ? '#00e436' : '#ff004d'}"></i>you</span><span><i class="sw" style="background:#9aa3d8"></i>average player</span></div>
+    ${n < 2 ? '<div class="small" style="margin-top:8px;text-align:center">PLAY DAILY TO GROW YOUR CHART</div>' : ''}
+    <div class="stats"><div><b>${n}</b><span>played</span></div><div><b>${avg}</b><span>avg</span></div><div><b>${best}</b><span>best</span></div><div><b>${streak}</b><span>streak</span></div></div>
+  </div>`;
+  drawChart(el.querySelector('canvas'), h.slice(-30), up);
+}
+function drawChart(cvs, pts, up){
+  const c = cvs.getContext('2d'), w = 160, hgt = 64;
+  c.fillStyle = '#0d1030'; c.fillRect(0, 0, w, hgt);
+  c.fillStyle = '#1f2758'; for (let y = 8; y < hgt; y += 14) c.fillRect(0, y, w, 1);
+  if (!pts.length) return;
+  const max = Math.max(400, ...pts.map(p => Math.max(p.score, p.avg))), n = pts.length;
+  const X = i => n === 1 ? w / 2 : 6 + i * ((w - 12) / (n - 1));
+  const Y = s => hgt - 6 - Math.round(s / max * (hgt - 14));
+  const col = up ? '#00e436' : '#ff004d', fill = up ? 'rgba(0,228,54,.18)' : 'rgba(255,0,77,.18)';
+  if (n > 1) for (let x = Math.ceil(X(0)); x <= X(n - 1); x++) {
+    const i = Math.min(n - 2, Math.floor((x - X(0)) / ((w - 12) / (n - 1))));
+    const t = (x - X(i)) / (X(i + 1) - X(i)), y = Math.round(Y(pts[i].score) + (Y(pts[i + 1].score) - Y(pts[i].score)) * t);
+    c.fillStyle = fill; c.fillRect(x, y, 1, hgt - 6 - y);
+  }
+  if (n > 1) for (let i = 0; i < n - 1; i++) pxLine(c, X(i), Y(pts[i].avg), X(i + 1), Y(pts[i + 1].avg), '#9aa3d8', true);
+  else pxLine(c, 6, Y(pts[0].avg), w - 6, Y(pts[0].avg), '#9aa3d8', true);
+  for (let i = 0; i < n - 1; i++) pxLine(c, X(i), Y(pts[i].score), X(i + 1), Y(pts[i + 1].score), col);
+  pts.forEach((p, i) => { c.fillStyle = i === n - 1 ? '#fff1e8' : col; c.fillRect(Math.round(X(i)) - 1, Y(p.score) - 1, 3, 3); });
+}
+
+/* ---------- countdown ---------- */
+setInterval(() => {
+  const n = new Date(), mid = new Date(n.getFullYear(), n.getMonth(), n.getDate() + 1);
+  const s = Math.max(0, Math.floor((mid - n) / 1000));
+  $('#countdown').textContent = [s / 3600, (s % 3600) / 60, s % 60].map(v => String(Math.floor(v)).padStart(2, '0')).join(':');
+}, 1000);
+
+/* ---------- header, modals, keys ---------- */
+$('#muteBtn').onclick = () => { store.muted = !store.muted; save(); $('#muteBtn').textContent = store.muted ? 'MUTE' : 'SND'; };
+$('#helpBtn').onclick = () => $('#helpModal').hidden = false;
+$('#statsBtn').onclick = () => { renderStats($('#modalStats')); $('#statsModal').hidden = false; };
+document.querySelectorAll('[data-close]').forEach(b => b.onclick = () => b.closest('.modal').hidden = true);
+document.querySelectorAll('.modal').forEach(m => m.addEventListener('click', e => { if (e.target === m) m.hidden = true; }));
+document.addEventListener('keydown', e => {
+  if ($('#play').hidden) return;
+  if (!$('#controls').hidden) {
+    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); fire(); }
+    else if (document.activeElement !== slider && (e.key === 'ArrowLeft' || e.key === 'ArrowRight')) { e.preventDefault(); setGuess(+slider.value + (e.key === 'ArrowRight' ? 1 : -1)); }
+  } else if (!$('#reveal').hidden && e.key === 'Enter') { e.preventDefault(); $('#nextBtn').click(); }
+});
+
+$('#againBtn').onclick = () => {
+  run = { dk, answers: [], done: false, replay: true }; store.run = run; save();
+  window.scrollTo(0, 0);
+  startQuestion(0);
+};
+
+/* ---------- start ---------- */
+$('#playBtn').onclick = () => startQuestion(run.answers.length);
+if (run.done) showEnd();
+else { $('#playBtn').textContent = run.answers.length ? `CONTINUE (${run.answers.length + 1}/${questions.length})` : `PLAY #${dayNum}`; show('home'); }
+
+if (location.hash === '#dev') {
+  $('#devBox').hidden = false;
+  const lbl = h => `${String(Math.floor(h) % 24).padStart(2, '0')}:${String(Math.round((h % 1) * 60)).padStart(2, '0')}`;
+  $('#devHour').oninput = e => { devHour = +e.target.value; $('#devHourLbl').textContent = lbl(devHour); };
+  $('#devLive').onclick = () => { devHour = null; $('#devHourLbl').textContent = 'live'; };
+  $('#resetBtn').onclick = () => { delete store.history[dk]; store.run = null; run = { dk, answers: [], done: false }; save(); $('#playBtn').textContent = `PLAY #${dayNum}`; show('home'); };
+}
+</script>
+</body>
+</html>
